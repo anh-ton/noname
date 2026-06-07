@@ -1,0 +1,57 @@
+#cloud-config
+autoinstall:
+  version: 1
+
+  identity:
+    hostname: lubuntu
+    username: tempuser
+    password: "$6$rounds=4096$wHfZrJXWwqJ0G5vT8Z9yQxY7Gz6cXG7k8h3Wm0n9uK9lQj7F1VwYxYxYxYxYxYxYxYxYxYxYxYxYxYxYxYxYxYx/"  # vimaru
+
+  locale: vi_VN
+  timezone: Asia/Ho_Chi_Minh
+
+  packages:
+    - git
+    - curl
+    - ibus-unikey
+    - ttf-mscorefonts-installer
+    - snapd
+
+  late-commands:
+    # Lấy số từ server LAN
+    - curtin in-target -- bash -c '
+        NUM=$(curl -s http://192.168.1.10:5000);
+        NAME="PC-$NUM";
+
+        useradd -m -s /bin/bash "$NAME";
+        echo "$NAME:vimaru" | chpasswd;
+        usermod -aG sudo "$NAME";
+
+        userdel -r tempuser || true;
+      '
+
+    # IBUS
+    - curtin in-target -- ibus restart
+    - curtin in-target -- ibus-daemon -drx
+
+    # SNAP
+    - curtin in-target -- systemctl enable --now snapd
+    - curtin in-target -- systemctl enable --now snapd.apparmor
+
+    # OnlyOffice
+    - curtin in-target -- snap install onlyoffice-desktopeditors
+
+    # Cài Zalo
+    - curtin in-target -- bash -c '
+        USERNAME=$(ls /home | grep "^PC-" | sort | tail -n1);
+
+        mkdir -p /home/$USERNAME/Applications;
+        chown $USERNAME:$USERNAME /home/$USERNAME/Applications;
+
+        cd /home/$USERNAME/Applications;
+        git clone https://github.com/realdtn2/zalo-linux-2026.git;
+
+        cd zalo-linux-2026;
+        chmod +x install.sh;
+        ./install.sh;
+      '
