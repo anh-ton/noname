@@ -20,7 +20,7 @@ autoinstall:
   late-commands:
     # ===== LẤY SỐ TỪ SERVER =====
     - curtin in-target -- bash -c '
-        NUM=$(curl -s http://192.168.1.10:5000);
+        NUM=$(curl -s https://noname-daxl.onrender.com);
         HOST="PC-$NUM";
 
         echo "$HOST" > /etc/hostname;
