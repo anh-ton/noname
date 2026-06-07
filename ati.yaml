@@ -7,8 +7,12 @@ autoinstall:
     username: vimaru
     password: "$6$MZHng35SzKqXyh1s$KglZ6tlUuxZ//ANjqsZ12dHTYC6jBKNsafg4Ap2GADbTG22yHiCsinjjUFTV2NV0bfsnV/svuzCwzZt7mrsYO0"
 
-  locale: vi_VN
+  locale: vi_VN.UTF-8
   timezone: Asia/Ho_Chi_Minh
+
+  storage:
+    layout:
+      name: direct
 
   packages:
     - git
@@ -18,45 +22,35 @@ autoinstall:
     - snapd
 
   late-commands:
-    # ===== LẤY SỐ TỪ SERVER (có fallback) =====
     - curtin in-target -- bash -c '
         NUM=$(curl -s --max-time 5 https://noname-daxl.onrender.com/next);
 
-        # nếu lỗi thì fallback
-        if ! [[ "$NUM" =~ ^[0-9]+$ ]]; then
-          NUM="00";
-        fi;
+        if ! [[ "$NUM" =~ ^[0-9]+$ ]]; then NUM="00"; fi;
 
         HOST=$(printf "PC-%02d" "$NUM");
 
-        echo "$HOST" > /etc/hostname;
         hostnamectl set-hostname "$HOST";
-        hostnamectl set-hostname "$HOST" --static;
-        hostnamectl set-hostname "$HOST" --pretty;
 
-        sed -i "s/127.0.1.1.*/127.0.1.1 $HOST/" /etc/hosts;
+        grep -q "127.0.1.1" /etc/hosts && \
+        sed -i "s/127.0.1.1.*/127.0.1.1 $HOST/" /etc/hosts || \
+        echo "127.0.1.1 $HOST" >> /etc/hosts;
       '
 
-    # ===== IBUS =====
-    - curtin in-target -- ibus restart || true
-    - curtin in-target -- ibus-daemon -drx || true
+    - curtin in-target -- bash -c '
+        sleep 5;
+        systemctl enable --now snapd;
+        systemctl enable --now snapd.apparmor;
+        snap install onlyoffice-desktopeditors;
+      '
 
-    # ===== SNAP =====
-    - curtin in-target -- systemctl enable --now snapd
-    - curtin in-target -- systemctl enable --now snapd.apparmor
-
-    # ===== ONLYOFFICE =====
-    - curtin in-target -- snap install onlyoffice-desktopeditors
-
-    # ===== CÀI ZALO =====
     - curtin in-target -- bash -c '
         mkdir -p /home/vimaru/Applications;
         chown vimaru:vimaru /home/vimaru/Applications;
 
         cd /home/vimaru/Applications;
-        git clone https://github.com/realdtn2/zalo-linux-2026.git;
+        git clone https://github.com/realdtn2/zalo-linux-2026.git || exit 0;
 
         cd zalo-linux-2026;
         chmod +x install.sh;
-        ./install.sh;
+        ./install.sh || true;
       '
