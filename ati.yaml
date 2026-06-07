@@ -5,7 +5,7 @@ autoinstall:
   identity:
     hostname: temp-host
     username: vimaru
-    password: "$6$MZHng35SzKqXyh1s$KglZ6tlUuxZ//ANjqsZ12dHTYC6jBKNsafg4Ap2GADbTG22yHiCsinjjUFTV2NV0bfsnV/svuzCwzZt7mrsYO0"
+    password: "$6$MZHng35SzKqXyh1s$KglZ6tlUuxZ//ANjqsZ12dHTYC6jBKNsafg4Ap2GADbTG22yHiCsinjjUFTV2NV0bfsnV/svuzCwzZt7mrsYO0" # pw: vimaru
 
   locale: vi_VN.UTF-8
   timezone: Asia/Ho_Chi_Minh
