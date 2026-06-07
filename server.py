@@ -38,6 +38,8 @@ class Handler(BaseHTTPRequestHandler):
 
         elif self.path == "/":
             self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"Counter server running")
 
         else:
             self.send_response(404)
