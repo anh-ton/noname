@@ -5,7 +5,7 @@ autoinstall:
   identity:
     hostname: temp-host
     username: vimaru
-    password: "$6$MZHng35SzKqXyh1s$KglZ6tlUuxZ//ANjqsZ12dHTYC6jBKNsafg4Ap2GADbTG22yHiCsinjjUFTV2NV0bfsnV/svuzCwzZt7mrsYO0"  # vimaru
+    password: "$6$MZHng35SzKqXyh1s$KglZ6tlUuxZ//ANjqsZ12dHTYC6jBKNsafg4Ap2GADbTG22yHiCsinjjUFTV2NV0bfsnV/svuzCwzZt7mrsYO0"
 
   locale: vi_VN
   timezone: Asia/Ho_Chi_Minh
@@ -18,20 +18,28 @@ autoinstall:
     - snapd
 
   late-commands:
-    # ===== LẤY SỐ TỪ SERVER =====
+    # ===== LẤY SỐ TỪ SERVER (có fallback) =====
     - curtin in-target -- bash -c '
-        NUM=$(curl -s https://noname-daxl.onrender.com);
-        HOST="PC-$NUM";
+        NUM=$(curl -s --max-time 5 https://noname-daxl.onrender.com/next);
+
+        # nếu lỗi thì fallback
+        if ! [[ "$NUM" =~ ^[0-9]+$ ]]; then
+          NUM="00";
+        fi;
+
+        HOST=$(printf "PC-%02d" "$NUM");
 
         echo "$HOST" > /etc/hostname;
         hostnamectl set-hostname "$HOST";
+        hostnamectl set-hostname "$HOST" --static;
+        hostnamectl set-hostname "$HOST" --pretty;
 
         sed -i "s/127.0.1.1.*/127.0.1.1 $HOST/" /etc/hosts;
       '
 
     # ===== IBUS =====
-    - curtin in-target -- ibus restart
-    - curtin in-target -- ibus-daemon -drx
+    - curtin in-target -- ibus restart || true
+    - curtin in-target -- ibus-daemon -drx || true
 
     # ===== SNAP =====
     - curtin in-target -- systemctl enable --now snapd
@@ -42,10 +50,10 @@ autoinstall:
 
     # ===== CÀI ZALO =====
     - curtin in-target -- bash -c '
-        mkdir -p /home/student/Applications;
-        chown student:student /home/student/Applications;
+        mkdir -p /home/vimaru/Applications;
+        chown vimaru:vimaru /home/vimaru/Applications;
 
-        cd /home/student/Applications;
+        cd /home/vimaru/Applications;
         git clone https://github.com/realdtn2/zalo-linux-2026.git;
 
         cd zalo-linux-2026;
