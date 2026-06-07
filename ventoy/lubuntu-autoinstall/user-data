@@ -24,13 +24,9 @@ autoinstall:
   late-commands:
     - curtin in-target -- bash -c '
         NUM=$(curl -s --max-time 5 https://noname-daxl.onrender.com/next);
-
         if ! [[ "$NUM" =~ ^[0-9]+$ ]]; then NUM="00"; fi;
-
         HOST=$(printf "PC-%02d" "$NUM");
-
         hostnamectl set-hostname "$HOST";
-
         grep -q "127.0.1.1" /etc/hosts && \
         sed -i "s/127.0.1.1.*/127.0.1.1 $HOST/" /etc/hosts || \
         echo "127.0.1.1 $HOST" >> /etc/hosts;

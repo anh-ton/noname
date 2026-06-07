@@ -1,0 +1,11 @@
+{
+  "control": [
+    { "VTOY_DEFAULT_MENU_MODE": "0" }
+  ],
+  "auto_install": [
+    {
+      "image": "/lubuntu-26.04-desktop-amd64.iso",
+      "template": "/ventoy/lubuntu-autoinstall/user-data"
+    }
+  ]
+}
