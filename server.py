@@ -44,5 +44,10 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
+            
+    def do_HEAD(self):
+        if self.path == "/":
+            self.send_response(200)
+            self.end_headers()
 
 HTTPServer(("0.0.0.0", 10000), Handler).serve_forever()
