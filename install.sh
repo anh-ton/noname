@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # install unikey
-sudo apt install ibus-unikey -y
+sudo apt install ibus ibus-unikey -y
 ibus restart
 ibus-daemon -drx
 
